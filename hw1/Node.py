@@ -3,7 +3,8 @@
 
 class Node:
     def __init__(self):
-        self.parent = [None, None]
+        self.position = (0,0)
+        self.parents = []
         self.f_val = 0
         self.g_val = 0
         self.h_val = 0

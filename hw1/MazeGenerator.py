@@ -17,5 +17,4 @@ class MazeGenerator:
         array[w-1][h-1] = 0
         return array
     
-    array = create_maze(10,10)
-    print(array)
+    
