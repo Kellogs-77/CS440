@@ -4,6 +4,9 @@ from MazeGenerator import MazeGenerator
 
 closed_list = dict()
 open_list = BinaryHeap()
+path_list = dict() #stores neighbors that I can pick from to travel to
+temporary_tree = []
+final_path = []
 
 def heuristic(end_position, start_positon):
     return (abs(end_position[0] - start_positon[0]) + abs(end_position[1]-start_positon[1]))
@@ -22,46 +25,88 @@ def create_node(position, parent, g_val, h_val):
     n.f_val = n.g_val + n.h_val
     return n
 
-def RepeatedA(maze, start_state, target):
+def find_optimal_movement():
+    min_val = min(path_list.values())
+
+    for position in path_list:
+        if path_list[position] == min_val:
+            return position
+    
+    return -1
+
+def check_in_bounds(tuple, target):
+    return (tuple[0] >= 0 and tuple[1] >= 0 and tuple[0] <= target[0] and tuple[1] <= target[1])
+
+def possible_movement():
+    val = (len(open_list.heap_list) > 1)
+    return val
+
+#given a start state and an end state, returns the shortest unblocked path from start to finish 
+def repeated_a(maze, start_state, target):
     #start the agent at the start state
     neighbors = [(0,1), (1,0), (0,-1), (-1,0)]
     agent_pos = start_state
 
-    #set up the starting node
-    start = create_node(tuple(agent_pos), [], 0, heuristic(target, start_state))
     
-    #figure out if neighbors are blocked, if so, add them to the closed list
-    #if neighbors are open, put them in the open list
+    #figure out if neighbors are blocked; if so, add them to the closed list
     for i,j in neighbors:
-        if (agent_pos[0] + i >= 0) and (agent_pos[1] + j >= 0):
-            if check_blocked((i,j)):
-                closed_list[(i, j)] = 0
+        neighbor_pos = (agent_pos[0] + i, agent_pos[1] + j)
+        if check_in_bounds(neighbor_pos, target):
+            if (check_blocked(neighbor_pos) or (neighbor_pos in closed_list)):
+                closed_list[neighbor_pos] = 0
             else:
-                n = create_node((i,j), start.position, 1, heuristic(target, (i,j)))
-                open_list.insert(n)
+                open_list.insert(create_node(neighbor_pos, agent_pos, 1, heuristic(target, neighbor_pos)))
     
-    closed_list[start.position] = 0
-    counter = 1
-    #set up the loop to continue until there is nothing in the open list  
-    while(len(open_list.heap_list) > 1):
+    min = open_list.delete_min()
+    
+    if not possible_movement():
+        return False
+ 
+    closed_list[min.position] = 0
+    g = 1
+    temporary_tree.append(agent_pos)
+    #iterate through the maze and find a path from start to target 
+    while(agent_pos != tuple(target)):
+        #add neighbors to a path list if you can move there
+        for i,j in neighbors:
+            if (agent_pos[0] + i >= 0 and agent_pos[0] + i < len(maze)) and (agent_pos[1] + j >= 0 and agent_pos[1] + j < len(maze)):
+                position = agent_pos[0]+i, agent_pos[1]+j
+                if position not in closed_list:
+                    path_list[position] = heuristic(target, position) + g
 
-
-
-        current = open_list.delete_min()
-        #if the current position is the target, return the path
-        if current.position == tuple(target):
-            return current.parents
-
-        #get the neighbors of the current node otherwise
+        #check which neighbor has the smallest f value
+       
+        agent_pos = find_optimal_movement()
+        temporary_tree.append(agent_pos)
+        path_list.clear()
+        g += 1
+    
+    return True
+    
         
 
-        closed_list[current.position] = 0
-        print(closed_list)
+def forward_a_star(maze):
+    #set up the starting node
+    agent_position = (0,0)
+    target = (len(maze) - 1, len(maze) - 1)
+    open_list.insert(create_node(agent_position, [], 0, heuristic(target, agent_position)))
+    
+    while(agent_position != target):
+        if repeated_a(maze, agent_position, target):
 
-    
-    
-    if agent_pos != target:
-        print("Cannot reach target")
+            for pos in temporary_tree:
+                #if the path is clear, add that to the tree
+                if maze[pos[0]][pos[1]] == 0:
+                    final_path.append(pos)
+                else:
+                    agent_position = final_path[len(final_path)-1]
+                    break
+            
+            temporary_tree.clear()
+        else: 
+            print("There is no escape")
+            break
+    #agent movement until it finds a block
     
 
 
@@ -70,4 +115,5 @@ if __name__ == "__main__":
     #create the initial maze
     maze = MazeGenerator.create_maze(10,10)
     print(maze)
-    RepeatedA(maze, [0,0], [len(maze)-1, len(maze[0])-1])
+    forward_a_star(maze)
+    print(final_path)
