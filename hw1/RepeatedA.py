@@ -45,9 +45,17 @@ def RepeatedA(maze, start_state, target):
     #set up the loop to continue until there is nothing in the open list  
     while(len(open_list.heap_list) > 1):
 
-        min = open_list.delete_min()
 
-        closed_list[min.position] = 0
+
+        current = open_list.delete_min()
+        #if the current position is the target, return the path
+        if current.position == tuple(target):
+            return current.parents
+
+        #get the neighbors of the current node otherwise
+        
+
+        closed_list[current.position] = 0
         print(closed_list)
 
     
