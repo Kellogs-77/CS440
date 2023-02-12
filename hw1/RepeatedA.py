@@ -41,6 +41,12 @@ def possible_movement():
     val = (len(open_list.heap_list) > 1)
     return val
 
+def compounded_delete(position_check):
+    min = open_list.delete_min()
+    while (min.position != position_check):
+        open_list.insert(min)
+        min = open_list.delete_min()
+    
 #given a start state and an end state, returns the shortest unblocked path from start to finish 
 def repeated_a(maze, start_state, target):
     #start the agent at the start state
@@ -57,14 +63,14 @@ def repeated_a(maze, start_state, target):
             else:
                 open_list.insert(create_node(neighbor_pos, agent_pos, 1, heuristic(target, neighbor_pos)))
     
-    min = open_list.delete_min()
-    
+    compounded_delete(agent_pos)
+    closed_list[agent_pos] = 0
+
     if not possible_movement():
         return False
  
-    closed_list[min.position] = 0
+    
     g = 1
-    temporary_tree.append(agent_pos)
     #iterate through the maze and find a path from start to target 
     while(agent_pos != tuple(target)):
         #add neighbors to a path list if you can move there
@@ -88,9 +94,9 @@ def repeated_a(maze, start_state, target):
 def forward_a_star(maze):
     #set up the starting node
     agent_position = (0,0)
+    final_path.append(agent_position)
     target = (len(maze) - 1, len(maze) - 1)
     open_list.insert(create_node(agent_position, [], 0, heuristic(target, agent_position)))
-    
     while(agent_position != target):
         if repeated_a(maze, agent_position, target):
 
