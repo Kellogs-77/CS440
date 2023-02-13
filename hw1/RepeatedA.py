@@ -53,7 +53,7 @@ def repeated_a(maze, start_state, target):
     neighbors = [(0,1), (1,0), (0,-1), (-1,0)]
     agent_pos = start_state
 
-    
+    g = 0
     #figure out if neighbors are blocked; if so, add them to the closed list
     for i,j in neighbors:
         neighbor_pos = (agent_pos[0] + i, agent_pos[1] + j)
@@ -119,7 +119,7 @@ def forward_a_star(maze):
 
 if __name__ == "__main__":
     #create the initial maze
-    maze = MazeGenerator.create_maze(10,10)
+    maze = MazeGenerator.create_maze(5,5)
     print(maze)
     forward_a_star(maze)
     print(final_path)
