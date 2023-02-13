@@ -38,7 +38,7 @@ def check_in_bounds(tuple, target):
     return (tuple[0] >= 0 and tuple[1] >= 0 and tuple[0] <= target[0] and tuple[1] <= target[1])
 
 def possible_movement():
-    val = (len(open_list.heap_list) > 1)
+    val = (len(open_list.heap_list) > 0)
     return val
 
 def compounded_delete(position_check):
@@ -53,7 +53,7 @@ def repeated_a(maze, start_state, target):
     neighbors = [(0,1), (1,0), (0,-1), (-1,0)]
     agent_pos = start_state
 
-    g = 0
+    g = 1
     #figure out if neighbors are blocked; if so, add them to the closed list
     for i,j in neighbors:
         neighbor_pos = (agent_pos[0] + i, agent_pos[1] + j)
@@ -61,7 +61,7 @@ def repeated_a(maze, start_state, target):
             if (check_blocked(neighbor_pos) or (neighbor_pos in closed_list)):
                 closed_list[neighbor_pos] = 0
             else:
-                open_list.insert(create_node(neighbor_pos, agent_pos, 1, heuristic(target, neighbor_pos)))
+                open_list.insert(create_node(neighbor_pos, agent_pos, g, heuristic(target, neighbor_pos)))
     
     compounded_delete(agent_pos)
     closed_list[agent_pos] = 0
@@ -70,7 +70,7 @@ def repeated_a(maze, start_state, target):
         return False
  
     
-    g = 1
+    g = 2
     #iterate through the maze and find a path from start to target 
     while(agent_pos != tuple(target)):
         #add neighbors to a path list if you can move there

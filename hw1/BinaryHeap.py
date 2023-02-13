@@ -5,7 +5,7 @@ from Node import Node
 class BinaryHeap:
     def __init__(self):
 
-        self.heap_list = [0]
+        self.heap_list = []
         self.current_size = 0
 
     def sift_up(self, i):
