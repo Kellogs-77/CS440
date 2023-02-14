@@ -175,7 +175,7 @@ def backward_a():
     
     if len(open_list.heap_list) == 1:
         print("There is no escape")
-        return 
+        return
 
 
 if __name__ == "__main__":
