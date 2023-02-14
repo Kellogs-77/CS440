@@ -68,24 +68,39 @@ def initialize_maze_nodes():
 
         for j in range(0, len(maze)):
             
-            n = create_node((i,j), (), 100*100, heuristic(target, (i,j)))
+            n = create_node((i,j), (), 1000*100, heuristic(target, (i,j)))
             maze_nodes[i][j] = n
     
     return maze_nodes
     
-def traceback_path(maze_nodes):
+def traceback_path(maze_nodes, forward_or_back):
     final_path = []
     position = target
     start_position = (0,0)
-    while(position != start_position):
-        final_path.append(position)
-        #set the position to the position of the nodes parent
-        position = maze_nodes[position[0]][position[1]].parents
-    
-    final_path.append(start_position)
 
-    for pos in reversed((final_path)):
-        print(pos)
+    if forward_or_back == 1:
+        while(position != start_position):
+            final_path.append(position)
+            #set the position to the position of the nodes parent
+            position = maze_nodes[position[0]][position[1]].parents
+        
+        final_path.append(start_position)
+
+        for pos in reversed((final_path)):
+            print(pos)
+        return
+    
+    elif forward_or_back == -1:
+        position = start_position
+        while(position != target):
+            final_path.append(position)
+            #set the position to the position of the nodes parent
+            position = maze_nodes[position[0]][position[1]].parents
+        
+        final_path.append(target)
+
+        for pos in ((final_path)):
+            print(pos)
 
 
 
@@ -125,7 +140,35 @@ def forward_a():
         a_evaluator(agent_pos, maze_nodes)
     
     if agent_pos == target:
-        traceback_path(maze_nodes)
+        traceback_path(maze_nodes, 1)
+        return
+    
+    if len(open_list.heap_list) == 1:
+        print("There is no escape")
+        return 
+    
+def backward_a():
+    maze_nodes = initialize_maze_nodes()
+
+    start_node = maze_nodes[0][0]
+    target_node = maze_nodes[target[0]][target[1]]
+    target_node.g_val = 0
+    target_node.h_val = heuristic(start_node.position, target)
+    target_node.f_val = target_node.g_val + target_node.h_val
+
+    maze_nodes[target[0]][target[1]] = target_node
+
+    open_list.insert(target_node)
+
+    agent_pos = target_node.position
+
+    while (agent_pos != start_node.position) and (len(open_list.heap_list) > 1):
+        min = open_list.delete_min()
+        agent_pos = min.position
+        a_evaluator(agent_pos, maze_nodes)
+    
+    if agent_pos == start_node.position:
+        traceback_path(maze_nodes, -1)
         return
     
     if len(open_list.heap_list) == 1:
@@ -138,4 +181,5 @@ if __name__ == "__main__":
     maze = MazeGenerator.create_maze(5,5)
     target = (len(maze) - 1, len(maze) - 1)
     print(maze)
-    forward_a()
+    #forward_a()
+    backward_a()
