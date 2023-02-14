@@ -8,6 +8,7 @@ path_list = dict() #stores neighbors that I can pick from to travel to
 temporary_tree = []
 final_path = []
 maze = []
+empty_maze = []
 target = ()
 
 def heuristic(end_position, start_positon):
@@ -120,15 +121,16 @@ def a_evaluator(current_node_position, maze_nodes):
 
     return 
     
-def forward_a():
-    maze_nodes =initialize_maze_nodes()
+def forward_a(start_pos):
+    maze_nodes = initialize_maze_nodes()
 
-    start_node = maze_nodes[0][0]
+    start_node = maze_nodes[start_pos[0]][start_pos[1]]
+    start_node.parents = ()
     start_node.g_val = 0
-    start_node.h_val = heuristic(target, start_node.position)
+    start_node.h_val = heuristic(target, start_pos)
     start_node.f_val = start_node.g_val + start_node.h_val
 
-    maze_nodes[0][0] = start_node
+    maze_nodes[start_pos[0]][start_pos[1]] = start_node
 
     open_list.insert(start_node)
 
@@ -145,7 +147,7 @@ def forward_a():
     
     if len(open_list.heap_list) == 1:
         print("There is no escape")
-        return 
+        return
     
 def backward_a():
     maze_nodes = initialize_maze_nodes()
@@ -178,8 +180,8 @@ def backward_a():
 
 if __name__ == "__main__":
     #create the initial maze
-    maze = MazeGenerator.create_maze(5,5)
+    maze, empty_maze = MazeGenerator.create_maze(5,5)
     target = (len(maze) - 1, len(maze) - 1)
     print(maze)
-    #forward_a()
-    backward_a()
+    forward_a((0,0))
+    #backward_a()

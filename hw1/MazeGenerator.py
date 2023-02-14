@@ -15,6 +15,8 @@ class MazeGenerator:
         array = np.reshape(array, (w, h))
         array[0][0] = 0        
         array[w-1][h-1] = 0
-        return array
+        empty_array = np.zeros((w, h))
+        empty_array.fill(0)
+        return array, empty_array
     
     

@@ -153,6 +153,10 @@ class BinaryHeap:
             self.sift_up(child_position)
             return
         #if yes, replace the node's parent as the prospective parent, replace the g value, and recalculate the f value
+
+    def clear_heap(self):
+        while(len(self.heap_list) > 1):
+            self.delete_min()
         
 
 if __name__ == "__main__":	
