@@ -81,6 +81,8 @@ def traceback_path(maze_nodes):
         final_path.append(position)
         #set the position to the position of the nodes parent
         position = maze_nodes[position[0]][position[1]].parents
+    
+    final_path.append(start_position)
 
     for pos in reversed((final_path)):
         print(pos)
@@ -90,7 +92,6 @@ def traceback_path(maze_nodes):
 #given a start state and an end state, returns the shortest unblocked path from start to finish 
 def a_evaluator(current_node_position, maze_nodes):
     #expand the node --> get a list of all the neighbors
-    print(current_node_position)
     list_of_neighbors = get_neighbors(current_node_position)
     #add unblocked neighbors to the open list
     #add blocked neighbors to the closed list
@@ -108,6 +109,11 @@ def forward_a():
     maze_nodes =initialize_maze_nodes()
 
     start_node = maze_nodes[0][0]
+    start_node.g_val = 0
+    start_node.h_val = heuristic(target, start_node.position)
+    start_node.f_val = start_node.g_val + start_node.h_val
+
+    maze_nodes[0][0] = start_node
 
     open_list.insert(start_node)
 
@@ -119,15 +125,17 @@ def forward_a():
         a_evaluator(agent_pos, maze_nodes)
     
     if agent_pos == target:
-        print("There is an escape")
+        traceback_path(maze_nodes)
+        return
     
     if len(open_list.heap_list) == 1:
-        print("There is no escape") 
+        print("There is no escape")
+        return 
 
 
 if __name__ == "__main__":
     #create the initial maze
-    maze = MazeGenerator.create_maze(10,10)
+    maze = MazeGenerator.create_maze(5,5)
     target = (len(maze) - 1, len(maze) - 1)
     print(maze)
     forward_a()

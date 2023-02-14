@@ -13,9 +13,7 @@ class MazeGenerator:
         rng = np.random.default_rng()
         array = rng.choice(items, size=w*h, p=weights / sum(weights))
         array = np.reshape(array, (w, h))
-        array[0][0] = 0
-        
-
+        array[0][0] = 0        
         array[w-1][h-1] = 0
         return array
     

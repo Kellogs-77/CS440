@@ -129,7 +129,7 @@ class BinaryHeap:
                 counter += 1
             
             i += 1
-        
+        parent = maze_nodes[parent_position[0]][parent_position[1]] 
         #if child is false -> child does not exist, so need to update a child node in map and copy it into the heap
         if child_found == False:
             c_node = maze_nodes[node_position[0]][node_position[1]] 
@@ -140,6 +140,7 @@ class BinaryHeap:
             self.insert(c_node)
             maze_nodes[node_position[0]][node_position[1]] = c_node
             return
+        
         elif parent.position == child.parents:
             return
         #check if the prospective parent's g value + 1 is less than the g value of the node
@@ -147,6 +148,8 @@ class BinaryHeap:
             child.parents = parent.position
             child.g_val = parent.g_val + 1
             child.f_val = child.g_val + child.h_val
+            maze_nodes[node_position[0]][node_position[1]] = child
+            self.heap_list[child_position] = child 
             self.sift_up(child_position)
             return
         #if yes, replace the node's parent as the prospective parent, replace the g value, and recalculate the f value
