@@ -119,7 +119,7 @@ def forward_a():
         a_evaluator(agent_pos, maze_nodes)
     
     if agent_pos == target:
-        print("yeet")
+        print("There is an escape")
     
     if len(open_list.heap_list) == 1:
         print("There is no escape") 
