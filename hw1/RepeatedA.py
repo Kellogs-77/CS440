@@ -7,6 +7,7 @@ open_list = BinaryHeap()
 path_list = dict() #stores neighbors that I can pick from to travel to
 temporary_tree = []
 final_path = []
+output_path = []
 maze = []
 empty_maze = []
 target = ()
@@ -74,10 +75,9 @@ def initialize_maze_nodes():
     
     return maze_nodes
     
-def traceback_path(maze_nodes, forward_or_back):
+def traceback_path(maze_nodes, forward_or_back, start_position):
     final_path = []
     position = target
-    start_position = (0,0)
 
     if forward_or_back == 1:
         while(position != start_position):
@@ -87,9 +87,8 @@ def traceback_path(maze_nodes, forward_or_back):
         
         final_path.append(start_position)
 
-        for pos in reversed((final_path)):
-            print(pos)
-        return
+        
+        return reversed(final_path)
     
     elif forward_or_back == -1:
         position = start_position
@@ -100,28 +99,40 @@ def traceback_path(maze_nodes, forward_or_back):
         
         final_path.append(target)
 
-        for pos in ((final_path)):
-            print(pos)
+        return final_path
 
+def agent_traversal(path, record_maze):
+
+    for i,j in path:
+
+        if maze[i][j] == 1:
+            record_maze[i][j] = 1
+            
+            return record_maze
+
+        else:
+            output_path.append((i,j))
+    
+    return record_maze
 
 
 #given a start state and an end state, returns the shortest unblocked path from start to finish 
-def a_evaluator(current_node_position, maze_nodes):
+def a_evaluator(current_node_position, maze_nodes, record_maze):
     #expand the node --> get a list of all the neighbors
     list_of_neighbors = get_neighbors(current_node_position)
     #add unblocked neighbors to the open list
     #add blocked neighbors to the closed list
     for i,j in list_of_neighbors:
-        if maze[i][j] == 1:
+        if record_maze[i][j] == 1:
             closed_list[(i,j)] = 0
-        elif (maze[i][j] == 0) and ((i,j) not in closed_list):
+        elif (record_maze[i][j] == 0) and ((i,j) not in closed_list):
             open_list.update_node((i,j), current_node_position, maze_nodes)
     #add the current node to the closed list
     closed_list[current_node_position] = 0
 
     return 
     
-def forward_a(start_pos):
+def forward_a(start_pos, record_maze):
     maze_nodes = initialize_maze_nodes()
 
     start_node = maze_nodes[start_pos[0]][start_pos[1]]
@@ -139,15 +150,13 @@ def forward_a(start_pos):
     while (agent_pos != target) and (len(open_list.heap_list) > 1):
         min = open_list.delete_min()
         agent_pos = min.position
-        a_evaluator(agent_pos, maze_nodes)
+        a_evaluator(agent_pos, maze_nodes, record_maze)
     
     if agent_pos == target:
-        traceback_path(maze_nodes, 1)
-        return
-    
-    if len(open_list.heap_list) == 1:
+        return traceback_path(maze_nodes, 1, start_node.position) 
+    elif len(open_list.heap_list) == 1:
         print("There is no escape")
-        return
+        return []
     
 def backward_a():
     maze_nodes = initialize_maze_nodes()
@@ -170,12 +179,32 @@ def backward_a():
         a_evaluator(agent_pos, maze_nodes)
     
     if agent_pos == start_node.position:
-        traceback_path(maze_nodes, -1)
-        return
+        return traceback_path(maze_nodes, -1)
+        
     
     if len(open_list.heap_list) == 1:
         print("There is no escape")
-        return
+        return []
+
+def a_star_pathfinder(empty_maze):
+    current_position = (0,0)
+
+    while current_position != target:
+
+        neighbors = get_neighbors(current_position)
+            
+        for s,r in neighbors:
+            empty_maze[s][r] = maze[s][r]
+
+        path = forward_a(current_position, empty_maze)
+
+        if not bool(path):
+            return False
+        else: 
+            empty_maze = agent_traversal(path, empty_maze)
+            current_position = output_path[len(output_path) - 1]
+            closed_list.clear()
+            open_list.clear_heap()
 
 
 if __name__ == "__main__":
@@ -183,5 +212,6 @@ if __name__ == "__main__":
     maze, empty_maze = MazeGenerator.create_maze(5,5)
     target = (len(maze) - 1, len(maze) - 1)
     print(maze)
-    forward_a((0,0))
+    if not a_star_pathfinder(empty_maze):
+        print(output_path)
     #backward_a()
