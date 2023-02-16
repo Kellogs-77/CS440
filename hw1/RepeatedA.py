@@ -158,10 +158,10 @@ def forward_a(start_pos, record_maze):
         print("There is no escape")
         return []
     
-def backward_a():
+def backward_a(start_pos, record_maze):
     maze_nodes = initialize_maze_nodes()
 
-    start_node = maze_nodes[0][0]
+    start_node = maze_nodes[start_pos[0]][start_pos[1]]
     target_node = maze_nodes[target[0]][target[1]]
     target_node.g_val = 0
     target_node.h_val = heuristic(start_node.position, target)
@@ -176,10 +176,10 @@ def backward_a():
     while (agent_pos != start_node.position) and (len(open_list.heap_list) > 1):
         min = open_list.delete_min()
         agent_pos = min.position
-        a_evaluator(agent_pos, maze_nodes)
+        a_evaluator(agent_pos, maze_nodes, record_maze)
     
     if agent_pos == start_node.position:
-        return traceback_path(maze_nodes, -1)
+        return traceback_path(maze_nodes, -1, start_node.position)
         
     
     if len(open_list.heap_list) == 1:
@@ -197,6 +197,8 @@ def a_star_pathfinder(empty_maze):
             empty_maze[s][r] = maze[s][r]
 
         path = forward_a(current_position, empty_maze)
+
+        #path = backward_a(current_position, empty_maze)
 
         if not bool(path):
             return False
