@@ -11,6 +11,7 @@ output_path = []
 maze = []
 empty_maze = []
 target = ()
+all_mazes = []
 
 def heuristic(end_position, start_positon):
     return (abs(end_position[0] - start_positon[0]) + abs(end_position[1]-start_positon[1]))
@@ -211,9 +212,14 @@ def a_star_pathfinder(empty_maze):
 
 if __name__ == "__main__":
     #create the initial maze
-    maze, empty_maze = MazeGenerator.create_maze(5,5)
-    target = (len(maze) - 1, len(maze) - 1)
-    print(maze)
-    if not a_star_pathfinder(empty_maze):
-        print(output_path)
-    #backward_a()
+
+    for i in range(0,50):
+        maze, empty_maze = MazeGenerator.create_maze(101,101)
+        target = (len(maze) - 1, len(maze) - 1)
+        print(maze)
+        if not a_star_pathfinder(empty_maze):
+            print(output_path)
+        output_path.clear()
+        closed_list.clear()
+        open_list.clear_heap()
+        #backward_a()
