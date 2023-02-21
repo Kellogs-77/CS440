@@ -1,6 +1,10 @@
 from Node import Node
 from BinaryHeap import BinaryHeap
 from MazeGenerator import MazeGenerator
+import sys
+import numpy
+
+
 
 closed_list = dict()
 open_list = BinaryHeap()
@@ -13,6 +17,9 @@ empty_maze = []
 target = ()
 all_mazes = []
 changed_heuristics = dict()
+nodes_expanded = 0
+for_nodes_expanded = []
+back_nodes_expanded = []
 
 def heuristic(end_position, start_positon):
     return (abs(end_position[0] - start_positon[0]) + abs(end_position[1]-start_positon[1]))
@@ -253,9 +260,11 @@ def adaptive_a(start_pos, record_maze):
         return []
 
 
-def a_star_pathfinder(empty_maze):
+def a_star_pathfinder(empty_maze, for_or_back):
     current_position = (0, 0)
-
+    global for_nodes_expanded
+    global back_nodes_expanded
+    global nodes_expanded
     while current_position != target:
 
         neighbors = get_neighbors(current_position)
@@ -263,7 +272,10 @@ def a_star_pathfinder(empty_maze):
         for s, r in neighbors:
             empty_maze[s][r] = maze[s][r]
 
-        path = forward_a(current_position, empty_maze)
+        if(for_or_back == 1):
+            path = forward_a(current_position, empty_maze)
+        else:
+            path = backward_a(current_position, empty_maze)
 
         #path = backward_a(current_position, empty_maze)
 
@@ -272,6 +284,10 @@ def a_star_pathfinder(empty_maze):
         else:
             empty_maze = agent_traversal(path, empty_maze)
             current_position = output_path[len(output_path) - 1]
+            if for_or_back == 1:
+                nodes_expanded += len(closed_list)
+            else:
+                nodes_expanded += len(closed_list)
             closed_list.clear()
             open_list.clear_heap()
 
@@ -298,26 +314,57 @@ def adaptive_star_pathfinder(empty_maze):
 
 
 if __name__ == "__main__":
+    mazes = []
+    for i in range(0,50):
+        maze, empty_maze = MazeGenerator.create_maze(101, 101)
+        mazes.append(maze)
+
+    file = open("sample.txt", "w+")
+
+    # Saving the array in a text file
+    numpy.set_printoptions(threshold=sys.maxsize)
+    content = str(mazes)
+    file.write(content)
+    file.close()
+    
+    numpy.set_printoptions(threshold=10)
+    for i in range(0, 50):
+         maze, empty_maze = MazeGenerator.create_maze(101, 101)
+         maze = mazes[i]
+         target = (len(maze) - 1, len(maze) - 1)
+         print(maze)
+         print("FORWARD A STAR     MAZE NUMBER {j}".format(j=i+1))
+         if not a_star_pathfinder(empty_maze, 1):
+            print(output_path)
+            output_path.clear()
+            closed_list.clear()
+            open_list.clear_heap()
+         for_nodes_expanded.append(nodes_expanded)
+         nodes_expanded = 0
 
     for i in range(0, 50):
+         maze, empty_maze = MazeGenerator.create_maze(101, 101)
+         maze = mazes[i]
+         target = (len(maze) - 1, len(maze) - 1)
+         print(maze)
+         print("BACKWARDS A STAR      MAZE NUMBER {j}".format(j=i+1))
+         if not a_star_pathfinder(empty_maze, -1):
+            print(output_path)
+            output_path.clear()
+            closed_list.clear()
+            open_list.clear_heap()
+            back_nodes_expanded.append(nodes_expanded)
+            nodes_expanded = 0
+    
+    for i in range(0, 50):
         maze, empty_maze = MazeGenerator.create_maze(101, 101)
+        maze = maze[i]
         target = (len(maze) - 1, len(maze) - 1)
         print(maze)
-        print("SLKFJSLFKJSLFKJLKSFJSFK       MAZE NUMBER {j}".format(j=i+1))
+        print("ADAPTIVE A STAR       MAZE NUMBER {j}".format(j=i+1))
         if not adaptive_star_pathfinder(empty_maze):
             print(output_path)
         output_path.clear()
         closed_list.clear()
         open_list.clear_heap()
 
-    # for i in range(0, 50):
-    #     maze, empty_maze = MazeGenerator.create_maze(101, 101)
-    #     target = (len(maze) - 1, len(maze) - 1)
-    #     print(maze)
-    #     print("SLKFJSLFKJSLFKJLKSFJSFK      MAZE NUMBER {j}".format(j=i+1))
-    #     if not a_star_pathfinder(empty_maze):
-    #         print(output_path)
-    #     output_path.clear()
-    #     closed_list.clear()
-    #     open_list.clear_heap()
-    # backward_a()
